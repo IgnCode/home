@@ -22,9 +22,11 @@ body {
   width: 100%;
   max-width: 330px;
   padding: 15px;
-  margin: 20 auto;
+  margin: 0 auto;
 }
-
+h1 {
+  color: #ffffff
+}
 .form-email .form-control {
   position: relative;
   box-sizing: border-box;
@@ -36,7 +38,7 @@ body {
   z-index: 2;
 }
 .form-email input[type="email"] {
-  margin-bottom: -1px;
+  margin-bottom: 10px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
