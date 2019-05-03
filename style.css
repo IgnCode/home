@@ -19,6 +19,7 @@ body {
   padding-top: 40px;
   padding-bottom: 40px;
   background-color: #000000;
+  border-color: rgba(126, 239, 104, 0.8);
 }
 
 .form-email {
