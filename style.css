@@ -25,7 +25,7 @@ body {
   margin: 0 auto;
 }
 h1 {
-  color: #ffffff
+  color: #ffffff;
 }
 .form-email .form-control {
   position: relative;
@@ -38,7 +38,7 @@ h1 {
   z-index: 2;
 }
 .form-email input[type="email"] {
-  margin-bottom: 10px;
+  margin-bottom: 120px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
