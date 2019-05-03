@@ -17,15 +17,14 @@ body {
   padding-bottom: 40px;
   background-color: #000000;
 }
-
+#h1 {
+  color: white;
+}
 .form-email {
   width: 100%;
   max-width: 330px;
   padding: 15px;
   margin: 0 auto;
-}
-h1 {
-  color: #ffffff;
 }
 .form-email .form-control {
   position: relative;
