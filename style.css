@@ -45,7 +45,6 @@ body {
   z-index: 2;
 }
 .form-email input[type="email"] {
-  margin-bottom: 120px;
   padding-bottom: 40px;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
