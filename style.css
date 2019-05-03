@@ -46,6 +46,7 @@ body {
 }
 .form-email input[type="email"] {
   padding-bottom: 40px;
+  border-color: #FF0000;
   border-bottom-right-radius: 0;
   border-bottom-left-radius: 0;
 }
