@@ -247,6 +247,9 @@
                     <a href="#endpoints-2" class="toc-h2 toc-link" data-title="Endpoints">Endpoints</a>
                   </li>
                   <li>
+                    <a href="#solicitar-comparativa-de-datasets" class="toc-h2 toc-link" data-title="Solicitar comparativa de datasets">Solicitar comparativa de datasets</a>
+                  </li>
+                  <li>
                     <a href="#configuracion-del-servicio-2" class="toc-h2 toc-link" data-title="Configuración del servicio">Configuración del servicio</a>
                   </li>
                   <li>
@@ -294,7 +297,10 @@
               </ul>
           </li>
           <li>
-            <a href="#errors" class="toc-h1 toc-link" data-title="Errors">Errors</a>
+            <a href="#generalidades" class="toc-h1 toc-link" data-title="Generalidades">Generalidades</a>
+          </li>
+          <li>
+            <a href="#errores" class="toc-h1 toc-link" data-title="Errores">Errores</a>
           </li>
       </ul>
         <ul class="toc-footer">
@@ -306,42 +312,28 @@
       <div class="content">
         <h1 id='introduccion'>Introducción</h1>
 <p>Bienvenido al catálogo de microservicios Kubernetes del equipo de UATs y mantenimiento.</p>
+
+<aside class="notice">
+Este catálogo es una prueba de concepto para compartir la idea. Los microservicios y la documentación están en fase de desarrollo.
+</aside>
 <h1 id='ms-log'>MS Log</h1>
 <p>El microservicio Log permite a las aplicaciones implementar fácilmente la funcionalidad de logging a stdout, schema log de base de datos, blob storage... [<a href="http://http//172.30.1.126/">Enlace a Gitlab</a>].</p>
 <h2 id='endpoints'>Endpoints</h2>
-<blockquote>
-<p>Puedes apagar el microservicio en cualquier momento enviando una petición POST al endpoint /shutdown o comprobar si está desplegado enviando una petición GET a /ready.</p>
-</blockquote>
-<pre class="highlight shell tab-shell"><code>curl -X POST http://127.0.0.1:9009/shutdown
-</code></pre><pre class="highlight python tab-python"><code><span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">post</span>
-
-<span class="c"># Encuesta para no operar hasta que el microservicio esté listo.</span>
-<span class="n">api_ready_flag</span> <span class="o">=</span> <span class="bp">False</span>
-<span class="k">while</span> <span class="ow">not</span> <span class="n">api_ready_flag</span><span class="p">:</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">response</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s">'http://127.0.0.1:9009/ready'</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-            <span class="n">api_ready_flag</span> <span class="o">=</span> <span class="bp">True</span>
-
-    <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s">'No se puede alcanzar'</span><span class="p">)</span>
-        <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
-
-<span class="c"># Petición para apagar el microservicio       </span>
-<span class="n">response</span> <span class="o">=</span> <span class="n">post</span><span class="p">(</span><span class="s">'http://127.0.0.1:9009/shutdown'</span><span class="p">)</span>
-
-<span class="c"># Comprobación.</span>
-<span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
-    <span class="k">print</span><span class="p">(</span><span class="s">"Microservicio Log finalizado</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
-</code></pre>
 <p><code>POST /log</code></p>
 
-<p><code>GET /ready</code></p>
-
-<p><code>GET /health</code></p>
-
-<p><code>POST /shutdown</code></p>
+<table><thead>
+<tr>
+<th>Atributo</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>message</td>
+<td>string</td>
+<td>Texto del mensaje a incluir en el log.</td>
+</tr>
+</tbody></table>
 <h2 id='registrar-mensaje-de-log'>Registrar mensaje de log</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
   -d <span class="s1">'{\"message\":\"Hello World!\"}'</span> <span class="se">\</span>
   -X POST <span class="se">\</span>
@@ -357,7 +349,7 @@
 <span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
     <span class="k">print</span><span class="p">(</span><span class="s">"El mensaje ha sido recibido por el servicio de Log</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
 </code></pre>
-<p>Para crear un nuevo log en el microservicio, enviamos una petición POST el endpoint /log.</p>
+<p>Para crear un nuevo log en el microservicio, enviamos una petición POST al endpoint /log.</p>
 
 <table><thead>
 <tr>
@@ -422,12 +414,14 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
     - <span class="n">secretRef</span>:
         <span class="n">name</span>: <span class="n">log</span>-<span class="n">secrets</span>
 </code></pre>
-<p>El microservicio de log está pensado para ser desplegado en de 1 a n contenedores dentro de un pod kubernetes (job, cronjob y derivados...). Para ello, debe ir acompañado de un ConfigMap que le proporcione los parámetros de configuración como variables de entorno y un Secret, para suministrarle los credenciales de acceso a base de datos y/o storage account en su caso.</p>
-<h3 id='configmap'>ConfigMap</h3>
+<p>El microservicio de log está pensado para ser desplegado en de 1 a n contenedores dentro de un pod kubernetes (job, cronjob y derivados...). Para ello, debe ir acompañado de un ConfigMap que le proporcione los parámetros de configuración como variables de entorno y de un Secret, para suministrarle los credenciales de acceso a base de datos y/o storage account en su caso.</p>
+
+<p>Configuración de base:</p>
+
 <table><thead>
 <tr>
 <th>Parámetro</th>
-<th>Defecto</th>
+<th>Default</th>
 <th>Descripción</th>
 </tr>
 </thead><tbody>
@@ -439,17 +433,48 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
 <tr>
 <td>API_PORT_LOG</td>
 <td>&quot;9009&quot;</td>
-<td>Puerto en el que escucha el microservicio.</td>
+<td>Puerto TCP en el que escucha el microservicio.</td>
 </tr>
+<tr>
+<td>namespace</td>
+<td>&quot;&quot;</td>
+<td>Namespace de Kubernetes en el que se desplegarán los recursos del microservicio. Proporcionado por Arquitectura.</td>
+</tr>
+<tr>
+<td>TO_STDOUT_LOG</td>
+<td>&quot;False&quot;</td>
+<td>(Opcional) Con valor a True activa en el servicio la opción de imprimir mensajes.</td>
+</tr>
+<tr>
+<td>TO_FILE_LOG</td>
+<td>&quot;False&quot;</td>
+<td>(Opcional) Con valor a True activa en el servicio la opción de guardar mensajes en archivo del directorio local del servicio.</td>
+</tr>
+<tr>
+<td>TERMINATION_PATH_LOG</td>
+<td>&quot;&quot;</td>
+<td>(Opcional) Ruta para el archivo de terminación para Kubernetes (debug interno del servicio).</td>
+</tr>
+</tbody></table>
+
+<p>Para que esta pieza escriba los mensajes en un blob, debemos proporcionarle en la configuración los siguientes parámetros:</p>
+<h3 id='configmap'>ConfigMap</h3>
+<table><thead>
+<tr>
+<th>Parámetro</th>
+<th>Default</th>
+<th>Descripción</th>
+</tr>
+</thead><tbody>
 <tr>
 <td>AZURE_TENANT_ID_LOG</td>
 <td>&quot;&quot;</td>
-<td>Tenant id del storage account en el que se almacenarán los mensajes.</td>
+<td>Tenant id del service principal con permisos sobre el storage account. Proporcionado por Arquitectura.</td>
 </tr>
 <tr>
 <td>AZURE_STORAGE_ACCOUNT_LOG</td>
 <td>&quot;&quot;</td>
-<td>Nombre de la storage account.</td>
+<td>Nombre de la storage account. Proporcionado por Arquitectura.</td>
 </tr>
 <tr>
 <td>AZURE_STORAGE_CONTAINER_LOG</td>
@@ -459,80 +484,79 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
 <tr>
 <td>AZURE_LOG_FILE_LOG</td>
 <td>&quot;&quot;</td>
-<td>Nombre que se le quiera dar al blob de mensajes.</td>
-</tr>
-<tr>
-<td>namespace</td>
-<td>&quot;&quot;</td>
-<td>Namespace de Kubernetes en el que se desplegarán los recursos del microservicio.</td>
-</tr>
-<tr>
-<td>SQL_DB_HOST</td>
-<td>&quot;&quot;</td>
-<td>tes</td>
-</tr>
-<tr>
-<td>SQL_DB_DATABASE</td>
-<td>&quot;&quot;</td>
-<td>tes</td>
+<td>Nombre que se le quiera dar al blob de logs.</td>
 </tr>
 <tr>
 <td>TO_BLOB_LOG</td>
 <td>&quot;False&quot;</td>
-<td>Con valor a True activa en el servicio la opción de guardado de mensajes en blob.</td>
-</tr>
-<tr>
-<td>TO_STDOUT_LOG</td>
-<td>&quot;False&quot;</td>
-<td>Con valor a True activa en el servicio la opción de imprimir mensajes.</td>
-</tr>
-<tr>
-<td>TO_FILE_LOG</td>
-<td>&quot;False&quot;</td>
-<td>Con valor a True activa en el servicio la opción de guardar mensajes en archivo del directorio local del servicio.</td>
-</tr>
-<tr>
-<td>TERMINATION_PATH_LOG</td>
-<td>&quot;&quot;</td>
-<td>Ruta para el archivo de terminación para Kubernetes (debug del servicio).</td>
+<td>(Opcional) Con valor a True activa en el servicio la opción de guardado de mensajes en blob.</td>
 </tr>
 </tbody></table>
 <h3 id='secret'>Secret</h3>
 <table><thead>
 <tr>
 <th>Parámetro</th>
-<th>Defecto</th>
+<th>Tipo</th>
 <th>Descripción</th>
 </tr>
 </thead><tbody>
 <tr>
-<td>namespace</td>
-<td>&quot;&quot;</td>
-<td>Namespace de Kubernetes en el que se desplegarán los recursos del microservicio.</td>
-</tr>
-<tr>
 <td>AZURE_CLIENT_ID_LOG</td>
-<td>&quot;&quot;</td>
-<td>Texto.</td>
+<td>String</td>
+<td>Client ID del service principal.</td>
 </tr>
 <tr>
 <td>AZURE_CLIENT_SECRET_LOG</td>
+<td>String</td>
+<td>Inyectado por Jenkins en el momento del despliegue. Arquitectura proporciona un alias que se debe añadir en este campo.</td>
+</tr>
+</tbody></table>
+
+<p>Para que escriba en base de datos:</p>
+<h3 id='configmap-2'>ConfigMap</h3>
+<table><thead>
+<tr>
+<th>Parámetro</th>
+<th>Default</th>
+<th>Descripción</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>SQL_DB_HOST</td>
 <td>&quot;&quot;</td>
-<td>Texto.</td>
+<td>Nombre del host de base de datos donde escribir los mensajes de log.</td>
 </tr>
 <tr>
-<td>SQL_DB_USERNAME</td>
+<td>SQL_DB_DATABASE</td>
 <td>&quot;&quot;</td>
+<td>Nombre de la base de datos donde se escribirán los mensajes de log.</td>
+</tr>
+</tbody></table>
+<h3 id='secret-2'>Secret</h3>
+<table><thead>
+<tr>
+<th>Parámetro</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>SQL_DB_USERNAME</td>
+<td>String</td>
 <td>test</td>
 </tr>
 <tr>
 <td>SQL_DB_PASSWORD</td>
-<td>&quot;&quot;</td>
+<td>String</td>
 <td>tes</td>
 </tr>
 </tbody></table>
 <h2 id='permisos-necesarios'>Permisos necesarios</h2>
-<p>Dependiendo de la funcionalidad del servicio que queramos utilizar, necesitaremos ciertos permisos proporcionados por Arquitectura/CSC. En caso de que queramos que los mensajes se guarden en el schema log de base de datos, necesitaremos un usuario y contraseña para escribir en esas tablas. En el caso de querer guardar los mensajes en un blob, necesitaremos un service principal que pueda escribir en ese storage account.</p>
+<p>Dependiendo de la funcionalidad del servicio que queramos utilizar, necesitaremos ciertos permisos proporcionados por Arquitectura/CSC. </p>
+
+<p>En caso de que queramos que los mensajes se guarden en el schema log de base de datos, necesitaremos un usuario y contraseña para escribir en esas tablas. </p>
+
+<p>En el caso de querer guardar los mensajes en un blob, necesitaremos un service principal que pueda escribir en ese storage account.</p>
 
 <table><thead>
 <tr>
@@ -553,8 +577,55 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
 </tr>
 </tbody></table>
 <h1 id='ms-match'>MS Match</h1>
-<p>El microservicio Match nos permite desplegar la funcionalidad de comparación de dos conjuntos de datos.</p>
-<h2 id='endpoints-2'>Endpoints</h2><pre class="highlight shell tab-shell"><code>curl -X POST http://127.0.0.1:9009/shutdown
+<p>El microservicio Match nos permite desplegar la funcionalidad de comparación de dos conjuntos de datos. </p>
+
+<p>Podemos comparar campo a campo dos datasets almacenados en ficheros tabulares o separados por comas. Para ello, será necesario indicarle al servicio cuales son los campos de cruce (primary keys) que se utilizarán para hacer coincidir (match) los registros de los dos datasets.</p>
+
+<p>Cada vez que un campo comparado, contenga el mismo valor en ambos datasets, el servicio lo anotará en el informe final como un OK. En caso contrario lo informará como KO.</p>
+<h2 id='endpoints-2'>Endpoints</h2>
+<p><code>POST /comparison</code></p>
+
+<table><thead>
+<tr>
+<th>Atributo</th>
+<th>Tipo</th>
+<th>Descripción</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>nombre</td>
+<td>String</td>
+<td>(opcional) Nombre de la comparativa.</td>
+</tr>
+<tr>
+<td>ruta_a</td>
+<td>String</td>
+<td>Ruta local al microservicio (ruta al volumen compartido) de donde leerá el conjunto de datos A.</td>
+</tr>
+<tr>
+<td>ruta_b</td>
+<td>String</td>
+<td>Ruta local al microservicio (ruta al volumen compartido) de donde leerá el conjunto de datos B.</td>
+</tr>
+<tr>
+<td>pivotes</td>
+<td>List</td>
+<td>Lista de nombres de columnas por las que se emparejarán los conjuntos de datos.</td>
+</tr>
+<tr>
+<td>ruta_resultado</td>
+<td>String</td>
+<td>Ruta local (ruta al volumen compartido) donde se guardará el informe excel de los resultados.</td>
+</tr>
+</tbody></table>
+<h2 id='solicitar-comparativa-de-datasets'>Solicitar comparativa de datasets</h2><pre class="highlight shell tab-shell"><code>curl -H <span class="s2">"Content-Type: application/json"</span> <span class="se">\</span>
+  -d <span class="s1">'{\"nombre\":\"comparacion 001\", 
+       \"ruta_a\":\"data/a/archivo_a.tsv\", 
+       \"ruta_b\":\"data/b/archivo_b.tsv\",
+       \"pivotes\":\"[\"Id\", \"Match_Id\"]\",
+       \"ruta_resultado\":\"Informe_comparativa.xlsx\" }'</span> <span class="se">\</span>
+  -X POST <span class="se">\</span>
+  http://127.0.0.1:9009/comparison
 </code></pre><pre class="highlight python tab-python"><code><span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">post</span>
 
 <span class="n">body</span> <span class="o">=</span> <span class="p">{</span><span class="s">"nombre"</span><span class="p">:</span> <span class="s">"comparacion 001"</span><span class="p">,</span>
@@ -573,43 +644,45 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
   <span class="k">print</span><span class="p">(</span><span class="s">"[{}][DEBUG] Recibida respuesta afirmativa de ultima peticion de comparacion</span><span class="se">\n</span><span class="s">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">f</span><span class="s">"{datetime.now():</span><span class="si">%</span><span class="s">Y-</span><span class="si">%</span><span class="s">m-</span><span class="si">%</span><span class="s">d </span><span class="si">%</span><span class="s">H:</span><span class="si">%</span><span class="s">M}"</span><span class="p">))</span>
 
 </code></pre>
-<p><code>POST /comparison</code></p>
-
-<p>Cuerpo de la petición</p>
+<p>Para iniciar una nueva comparativa, debemos enviar una petición POST al endpoint /comparison. En el cuerpo de la petición deberemos incluir los siguientes atributos:</p>
 
 <table><thead>
 <tr>
-<th>Parámetro</th>
-<th>Defecto</th>
+<th>Atributo</th>
+<th>Tipo</th>
 <th>Descripción</th>
 </tr>
 </thead><tbody>
 <tr>
 <td>nombre</td>
-<td>&quot;&quot;</td>
+<td>String</td>
 <td>(opcional) Nombre de la comparativa.</td>
 </tr>
 <tr>
 <td>ruta_a</td>
-<td>&quot;ruta/a/archivo_a.tsv&quot;</td>
+<td>String</td>
 <td>Ruta local al microservicio (ruta al volumen compartido) de donde leerá el conjunto de datos A.</td>
 </tr>
 <tr>
 <td>ruta_b</td>
-<td>&quot;ruta/a/archivo_b.csv&quot;</td>
+<td>String</td>
 <td>Ruta local al microservicio (ruta al volumen compartido) de donde leerá el conjunto de datos B.</td>
 </tr>
 <tr>
 <td>pivotes</td>
-<td>[&quot;&quot;]</td>
+<td>List</td>
 <td>Lista de nombres de columnas por las que se emparejarán los conjuntos de datos.</td>
 </tr>
 <tr>
 <td>ruta_resultado</td>
-<td>&quot;&quot;</td>
+<td>String</td>
 <td>Ruta local (ruta al volumen compartido) donde se guardará el informe excel de los resultados.</td>
 </tr>
 </tbody></table>
+
+<aside class="notice">
+En la petición debes utilizar el puerto al que has configurado el servicio para que escuche.
+</aside>
 <h2 id='configuracion-del-servicio-2'>Configuración del servicio</h2><pre class="highlight conf tab-conf"><code><span class="c"># Contenido de archivo: configmap.yaml
 </span><span class="n">apiVersion</span>: <span class="n">v1</span>
 <span class="n">kind</span>: <span class="n">ConfigMap</span>
@@ -642,8 +715,8 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
     - <span class="n">configMapRef</span>:
         <span class="n">name</span>: <span class="n">match</span>-<span class="n">config</span>
 </code></pre>
-<p>El microservicio Match requiere ser desplegado en Kubernetes con un ConfigMap que le proporcione los parámetros de configuración del servicio. </p>
-<h3 id='configmap-2'>ConfigMap</h3>
+<p>El microservicio Match requiere ser desplegado en Kubernetes con un ConfigMap que le proporcione los parámetros de configuración. Será necesario conectarle a un volumen compartido para proporcionarle los datasets a comparar y compartir el informe de resultados.</p>
+<h3 id='configmap-3'>ConfigMap</h3>
 <p>Parámetros de ConfigMap match-config:</p>
 
 <table><thead>
@@ -672,7 +745,14 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
 <h2 id='permisos-necesarios-2'>Permisos necesarios</h2>
 <p>No se requieren permisos adicionales para desplegar este microservicio.</p>
 <h1 id='ms-copy'>MS Copy</h1>
-<p>El microservicio Copy nos permite realizar peticiones de copiado de archivos de blob storage a local, de local a blob storage, entre blobs storage y de local a local. </p>
+<p>El microservicio Copy nos permite realizar peticiones de copiado:</p>
+
+<ul>
+<li><p>De Blob Storage a archivo local.</p></li>
+<li><p>De local a Blob Storage. </p></li>
+<li><p>De Blob a Blob.</p></li>
+<li><p>De local a local.</p></li>
+</ul>
 <h2 id='configuracion-del-servicio-3'>Configuración del servicio</h2><pre class="highlight conf tab-conf"><code><span class="c"># Contenido de archivo: configmap.yaml
 </span><span class="n">apiVersion</span>: <span class="n">v1</span>
 <span class="n">kind</span>: <span class="n">ConfigMap</span>
@@ -774,10 +854,6 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
 <td>Secreto inyectado por Jenkins en el momento del despliegue. Arquitectura propociona un alias.</td>
 </tr>
 </tbody></table>
-
-<aside class="notice">
-You must replace <code>meowmeowmeow</code> with your personal API key.
-</aside>
 
 <blockquote>
 <p>POST /copy</p>
@@ -1210,7 +1286,7 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
       <span class="n">initialDelaySeconds</span>: <span class="m">10</span>
 </code></pre>
 <p>El microservicio de log está pensado para ser desplegado en de 1 a n contenedores dentro de un pod kubernetes (job, cronjob y derivados...). Para ello, debe ir acompañado de un ConfigMap que le proporcione los parámetros de configuración como variables de entorno y un Secret, para suministrarle los credenciales de acceso a base de datos y/o storage account en su caso.</p>
-<h3 id='configmap-3'>ConfigMap</h3>
+<h3 id='configmap-4'>ConfigMap</h3>
 <table><thead>
 <tr>
 <th>Parámetro</th>
@@ -1284,7 +1360,7 @@ En la petición debes utilizar el puerto al que has configurado el servicio para
 <td>Ruta para el archivo de terminación para Kubernetes (debug del servicio).</td>
 </tr>
 </tbody></table>
-<h3 id='secret-2'>Secret</h3>
+<h3 id='secret-3'>Secret</h3>
 <table><thead>
 <tr>
 <th>Parámetro</th>
@@ -1347,7 +1423,63 @@ You must replace <code>meowmeowmeow</code> with your personal API key.
 <aside class="success">
 En la petición debes utilizar el puerto al que has configurado el servicio para que escuche.
 </aside>
-<h1 id='errors'>Errors</h1>
+<h1 id='generalidades'>Generalidades</h1>
+<aside class="notice">
+Todos los microservicios tienen un middleware común que expone endpoints para su interacción con Kubernetes y funcionalidades básicas como el apagado del servicio. 
+</aside>
+
+<p>Endpoints comunes:</p>
+
+<table><thead>
+<tr>
+<th>Endpoint</th>
+<th>Verbo</th>
+<th>Funcionalidad</th>
+</tr>
+</thead><tbody>
+<tr>
+<td>/ready</td>
+<td>GET</td>
+<td>Se obtiene un código 200 cuando el servicio está listo para funcionar.</td>
+</tr>
+<tr>
+<td>/health</td>
+<td>GET</td>
+<td>Se obtiene un código 200 si el servicio sigue funcionando.</td>
+</tr>
+<tr>
+<td>/shutdown</td>
+<td>POST</td>
+<td>Apaga el servicio --- Retorna código 200.</td>
+</tr>
+</tbody></table>
+
+<blockquote>
+<p>Puedes apagar el microservicio en cualquier momento enviando una petición POST al endpoint /shutdown o comprobar si está desplegado enviando una petición GET a /ready.</p>
+</blockquote>
+<pre class="highlight shell tab-shell"><code>curl -X POST http://127.0.0.1:9009/shutdown
+</code></pre><pre class="highlight python tab-python"><code><span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">post</span>
+
+<span class="c"># Encuesta para no operar hasta que el microservicio esté listo.</span>
+<span class="n">api_ready_flag</span> <span class="o">=</span> <span class="bp">False</span>
+<span class="k">while</span> <span class="ow">not</span> <span class="n">api_ready_flag</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">get</span><span class="p">(</span><span class="s">'http://127.0.0.1:9009/ready'</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="n">api_ready_flag</span> <span class="o">=</span> <span class="bp">True</span>
+
+    <span class="k">except</span> <span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="s">'No se puede alcanzar'</span><span class="p">)</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+<span class="c"># Petición para apagar el microservicio       </span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">post</span><span class="p">(</span><span class="s">'http://127.0.0.1:9009/shutdown'</span><span class="p">)</span>
+
+<span class="c"># Comprobación.</span>
+<span class="k">if</span> <span class="n">response</span> <span class="o">==</span> <span class="mi">200</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">"Microservicio Log finalizado</span><span class="se">\n</span><span class="s">"</span><span class="p">)</span>
+</code></pre><h1 id='errores'>Errores</h1>
 <aside class="notice">
 This error section is stored in a separate file in <code>includes/_errors.md</code>. Slate allows you to optionally separate out your docs into many files...just save them to the <code>includes</code> folder and add them to the top of your <code>index.md</code>'s frontmatter. Files are included in the order listed.
 </aside>
